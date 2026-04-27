@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import '../providers/auth_provider.dart';
 import '../providers/chat_provider.dart';
 import '../providers/call_provider.dart';
 import '../models/message.dart';
 import 'call/audio_call_screen.dart';
-import 'users_screen.dart';
 
 class ConversationScreen extends StatefulWidget {
   final String chatId;
@@ -29,14 +28,14 @@ class ConversationScreen extends StatefulWidget {
   State<ConversationScreen> createState() => _ConversationScreenState();
 }
 
-class _ConversationScreenState extends State<ConversationScreen> with TickerProviderStateMixin {
+class _ConversationScreenState extends State<ConversationScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final FocusNode _focusNode = FocusNode();
   bool _isRecording = false;
-  bool _showEmojiPanel = false;
+  bool _showStickerPanel = false;
   bool _isReplying = false;
   Message? _replyMessage;
-  String _emojiTab = 'recent';
 
   @override
   void initState() {
@@ -78,12 +77,10 @@ class _ConversationScreenState extends State<ConversationScreen> with TickerProv
   }
 
   Widget _buildMessageBubble(Message message, bool isMine) {
-    final isAudio = message.type == MessageType.audio;
-    final isImage = message.type == MessageType.image;
-    final isVideo = message.type == MessageType.video;
-    final isSticker = message.type == MessageType.sticker;
-    final hasReply = message.replyToId != null;
-    
+    final bubbleColor = isMine 
+        ? const Color(0xFF2A2A3E) 
+        : const Color(0xFFE53935).withOpacity(0.15);
+
     return Align(
       alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
       child: GestureDetector(
@@ -96,32 +93,26 @@ class _ConversationScreenState extends State<ConversationScreen> with TickerProv
           }
         },
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+          margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 12),
           constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
           child: Column(
             crossAxisAlignment: isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
             children: [
-              // Mensaje al que se responde
-              if (hasReply) 
+              if (message.replyToId != null)
                 Container(
                   padding: const EdgeInsets.all(8),
                   margin: const EdgeInsets.only(bottom: 4),
                   decoration: BoxDecoration(
-                    color: isMine ? const Color(0xFF4A4A5A) : const Color(0xFF3A1A1E),
+                    color: const Color(0xFF1A1A2E),
                     borderRadius: BorderRadius.circular(8),
                     border: const Border(left: BorderSide(color: Color(0xFFE53935), width: 3)),
                   ),
-                  child: Text(
-                    'Mensaje respondido',
-                    style: TextStyle(fontSize: 11, color: Colors.grey[400]),
-                  ),
+                  child: Text('Mensaje', style: TextStyle(fontSize: 11, color: Colors.grey[500])),
                 ),
-              
-              // Burbuja principal
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: isMine ? const Color(0xFF2A2A3E) : const Color(0xFFE53935).withOpacity(0.15),
+                  color: bubbleColor,
                   borderRadius: BorderRadius.only(
                     topLeft: const Radius.circular(16),
                     topRight: const Radius.circular(16),
@@ -132,7 +123,7 @@ class _ConversationScreenState extends State<ConversationScreen> with TickerProv
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (isImage && message.mediaUrl != null)
+                    if (message.type == MessageType.image && message.mediaUrl != null)
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: CachedNetworkImage(
@@ -142,7 +133,7 @@ class _ConversationScreenState extends State<ConversationScreen> with TickerProv
                           fit: BoxFit.cover,
                         ),
                       ),
-                    if (isAudio)
+                    if (message.type == MessageType.audio)
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -155,42 +146,17 @@ class _ConversationScreenState extends State<ConversationScreen> with TickerProv
                             ),
                             child: const Icon(Icons.play_arrow, color: Colors.white, size: 20),
                           ),
-                          const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: 150,
-                                height: 3,
-                                color: Colors.grey[600],
-                                child: FractionallySizedBox(
-                                  alignment: Alignment.centerLeft,
-                                  widthFactor: message.isPlayed ? 0.8 : 0,
-                                  child: Container(color: const Color(0xFFE53935)),
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${message.audioDuration ?? 0}s',
-                                style: const TextStyle(fontSize: 11, color: Colors.grey),
-                              ),
-                            ],
-                          ),
+                          const SizedBox(width: 8),
+                          Text('${message.audioDuration ?? 0}s', style: const TextStyle(color: Colors.grey, fontSize: 12)),
                         ],
                       ),
                     if (message.content != null && message.content!.isNotEmpty)
-                      Text(
-                        message.content!,
-                        style: const TextStyle(fontSize: 15),
-                      ),
-                    const SizedBox(height: 4),
+                      Text(message.content!, style: const TextStyle(fontSize: 15)),
+                    const SizedBox(height: 2),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          timeago.format(message.timestamp, locale: 'es'),
-                          style: TextStyle(fontSize: 11, color: Colors.grey[500]),
-                        ),
+                        Text(timeago.format(message.timestamp, locale: 'es'), style: TextStyle(fontSize: 10, color: Colors.grey[500])),
                         if (isMine) ...[
                           const SizedBox(width: 4),
                           _buildMessageStatus(message.status),
@@ -221,63 +187,31 @@ class _ConversationScreenState extends State<ConversationScreen> with TickerProv
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => UsersScreen(),
-              ),
-            );
-          },
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: const Color(0xFFE53935),
-                child: widget.otherAvatar != null
-                    ? ClipOval(
-                        child: CachedNetworkImage(
-                          imageUrl: widget.otherAvatar!,
-                          width: 36,
-                          height: 36,
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                    : Text(
-                        widget.otherUsername[0].toUpperCase(),
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-              ),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(widget.otherUsername, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                  Text(
-                    'en línea',
-                    style: TextStyle(fontSize: 12, color: Colors.green[400]),
-                  ),
-                ],
-              ),
-            ],
-          ),
+        title: Row(
+          children: [
+            CircleAvatar(
+              radius: 18,
+              backgroundColor: const Color(0xFFE53935),
+              child: widget.otherAvatar != null
+                  ? ClipOval(child: CachedNetworkImage(imageUrl: widget.otherAvatar!, width: 36, height: 36, fit: BoxFit.cover))
+                  : Text(widget.otherUsername[0].toUpperCase(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(widget.otherUsername, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                Text('en línea', style: TextStyle(fontSize: 12, color: Colors.green[400])),
+              ],
+            ),
+          ],
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.phone, color: Color(0xFFE53935)),
             onPressed: () {
-              callProvider.startCall(
-                widget.otherUserId,
-                widget.otherUsername,
-                widget.otherAvatar,
-              );
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const AudioCallScreen(),
-                ),
-              );
+              callProvider.startCall(widget.otherUserId, widget.otherUsername, widget.otherAvatar);
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const AudioCallScreen()));
             },
           ),
           PopupMenuButton<String>(
@@ -293,38 +227,17 @@ class _ConversationScreenState extends State<ConversationScreen> with TickerProv
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'clear',
-                child: Row(
-                  children: [
-                    Icon(Icons.delete_sweep, color: Colors.grey, size: 20),
-                    SizedBox(width: 8),
-                    Text('Vaciar Chat', style: TextStyle(color: Colors.white)),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'delete',
-                child: Row(
-                  children: [
-                    Icon(Icons.delete, color: Color(0xFFE53935), size: 20),
-                    SizedBox(width: 8),
-                    Text('Eliminar Chat', style: TextStyle(color: Colors.white)),
-                  ],
-                ),
-              ),
+              const PopupMenuItem(value: 'clear', child: Row(children: [Icon(Icons.delete_sweep, color: Colors.grey, size: 20), SizedBox(width: 8), Text('Vaciar Chat', style: TextStyle(color: Colors.white))])),
+              const PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete, color: Color(0xFFE53935), size: 20), SizedBox(width: 8), Text('Eliminar Chat', style: TextStyle(color: Colors.white))])),
             ],
           ),
         ],
       ),
       body: Column(
         children: [
-          // Lista de mensajes
           Expanded(
             child: messages.isEmpty
-                ? const Center(
-                    child: Text('No hay mensajes aún', style: TextStyle(color: Colors.grey)),
-                  )
+                ? const Center(child: Text('No hay mensajes aún', style: TextStyle(color: Colors.grey)))
                 : ListView.builder(
                     controller: _scrollController,
                     padding: const EdgeInsets.symmetric(vertical: 8),
@@ -336,8 +249,6 @@ class _ConversationScreenState extends State<ConversationScreen> with TickerProv
                     },
                   ),
           ),
-          
-          // Panel de respuesta
           if (_isReplying && _replyMessage != null)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -346,26 +257,11 @@ class _ConversationScreenState extends State<ConversationScreen> with TickerProv
                 children: [
                   const Icon(Icons.reply, color: Color(0xFFE53935), size: 20),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      _replyMessage!.content ?? 'Mensaje',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(color: Colors.grey, fontSize: 13),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.grey, size: 20),
-                    onPressed: () => setState(() {
-                      _isReplying = false;
-                      _replyMessage = null;
-                    }),
-                  ),
+                  Expanded(child: Text(_replyMessage!.content ?? 'Mensaje', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.grey, fontSize: 13))),
+                  IconButton(icon: const Icon(Icons.close, color: Colors.grey, size: 20), onPressed: () => setState(() { _isReplying = false; _replyMessage = null; })),
                 ],
               ),
             ),
-          
-          // Barra de escritura
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             color: const Color(0xFF1A1A2E),
@@ -373,141 +269,83 @@ class _ConversationScreenState extends State<ConversationScreen> with TickerProv
               child: Row(
                 children: [
                   IconButton(
-                    icon: Icon(
-                      _showEmojiPanel ? Icons.keyboard : Icons.emoji_emotions_outlined,
-                      color: Colors.grey,
-                    ),
-                    onPressed: () => setState(() => _showEmojiPanel = !_showEmojiPanel),
+                    icon: Icon(_showStickerPanel ? Icons.keyboard : Icons.sticky_note_2, color: Colors.grey),
+                    onPressed: () => setState(() => _showStickerPanel = !_showStickerPanel),
                   ),
                   Expanded(
                     child: TextField(
                       controller: _messageController,
+                      focusNode: _focusNode,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: 'Mensaje...',
                         hintStyle: TextStyle(color: Colors.grey[500]),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide.none,
-                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
                         filled: true,
                         fillColor: const Color(0xFF2A2A3E),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       ),
-                      onChanged: (text) => setState(() {}),
                     ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.attach_file, color: Colors.grey),
                     onPressed: () async {
-                      final ImagePicker picker = ImagePicker();
-                      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+                      final picker = ImagePicker();
+                      final image = await picker.pickImage(source: ImageSource.gallery);
                       if (image != null) {
                         final auth = Provider.of<AuthProvider>(context, listen: false);
                         chatProvider.sendMessage(
-                          widget.chatId,
-                          '',
-                          MessageType.image,
-                          auth.token!,
+                          chatId: widget.chatId,
+                          content: '',
+                          type: MessageType.image,
+                          token: auth.token!,
                           mediaUrl: image.path,
                         );
                       }
                     },
                   ),
-                  if (_messageController.text.isEmpty)
-                    GestureDetector(
-                      onLongPressStart: (_) => setState(() => _isRecording = true),
-                      onLongPressEnd: (_) => setState(() => _isRecording = false),
-                      onLongPressMoveUpdate: (details) {
-                        // Detectar si desliza para cancelar
-                      },
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFE53935),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.mic, color: Colors.white, size: 22),
-                      ),
-                    )
-                  else
-                    IconButton(
-                      icon: const Icon(Icons.send, color: Color(0xFFE53935)),
-                      onPressed: () {
-                        if (_messageController.text.trim().isNotEmpty) {
-                          final auth = Provider.of<AuthProvider>(context, listen: false);
-                          chatProvider.sendMessage(
-                            widget.chatId,
-                            _messageController.text.trim(),
-                            MessageType.text,
-                            auth.token!,
-                            replyToId: _replyMessage?.id,
-                          );
-                          _messageController.clear();
-                          setState(() {
-                            _isReplying = false;
-                            _replyMessage = null;
-                          });
-                          _scrollToBottom();
-                        }
-                      },
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.send, color: Color(0xFFE53935)),
+                    onPressed: () {
+                      if (_messageController.text.trim().isNotEmpty) {
+                        final auth = Provider.of<AuthProvider>(context, listen: false);
+                        chatProvider.sendMessage(
+                          chatId: widget.chatId,
+                          content: _messageController.text.trim(),
+                          type: MessageType.text,
+                          token: auth.token!,
+                          replyToId: _replyMessage?.id,
+                        );
+                        _messageController.clear();
+                        setState(() { _isReplying = false; _replyMessage = null; });
+                        _scrollToBottom();
+                      }
+                    },
+                  ),
                 ],
               ),
             ),
           ),
-          
-          // Panel de emojis
-          if (_showEmojiPanel)
+          if (_showStickerPanel)
             Container(
-              height: 300,
+              height: 100,
               color: const Color(0xFF1A1A2E),
               child: Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildEmojiTab(Icons.access_time, 'recent'),
-                      _buildEmojiTab(Icons.emoji_emotions, 'emoji'),
-                      _buildEmojiTab(Icons.sticky_note_2, 'sticker'),
-                    ],
-                  ),
                   Expanded(
-                    child: _emojiTab == 'recent'
-                        ? const Center(child: Text('Emojis recientes', style: TextStyle(color: Colors.grey)))
-                        : _emojiTab == 'emoji'
-                            ? EmojiPicker(
-                                onEmojiSelected: (category, emoji) {
-                                  _messageController.text += emoji.emoji;
-                                  setState(() {});
-                                },
-                              )
-                            : Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.add_circle, size: 48, color: Color(0xFFE53935)),
-                                      onPressed: () async {
-                                        final ImagePicker picker = ImagePicker();
-                                        final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-                                        if (image != null) {
-                                          final auth = Provider.of<AuthProvider>(context, listen: false);
-                                          chatProvider.sendMessage(
-                                            widget.chatId,
-                                            '',
-                                            MessageType.sticker,
-                                            auth.token!,
-                                            mediaUrl: image.path,
-                                          );
-                                        }
-                                      },
-                                    ),
-                                    const Text('Agregar sticker', style: TextStyle(color: Colors.grey)),
-                                  ],
-                                ),
-                              ),
+                    child: GridView.count(
+                      crossAxisCount: 4,
+                      children: [
+                        _buildStickerButton('❤️'),
+                        _buildStickerButton('😂'),
+                        _buildStickerButton('😍'),
+                        _buildStickerButton('🔥'),
+                        _buildStickerButton('👍'),
+                        _buildStickerButton('🎉'),
+                        _buildStickerButton('💯'),
+                        _buildStickerButton('⭐'),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -517,21 +355,25 @@ class _ConversationScreenState extends State<ConversationScreen> with TickerProv
     );
   }
 
-  Widget _buildEmojiTab(IconData icon, String tab) {
+  Widget _buildStickerButton(String emoji) {
     return GestureDetector(
-      onTap: () => setState(() => _emojiTab = tab),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: _emojiTab == tab ? const Color(0xFFE53935) : Colors.transparent,
-              width: 2,
-            ),
-          ),
-        ),
-        child: Icon(icon, color: _emojiTab == tab ? const Color(0xFFE53935) : Colors.grey),
-      ),
+      onTap: () {
+        final auth = Provider.of<AuthProvider>(context, listen: false);
+        final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+        chatProvider.sendMessage(
+          chatId: widget.chatId, content: emoji, type: MessageType.text, token: auth.token!,
+        );
+        _scrollToBottom();
+      },
+      child: Center(child: Text(emoji, style: const TextStyle(fontSize: 32))),
     );
+  }
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    _scrollController.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 }
