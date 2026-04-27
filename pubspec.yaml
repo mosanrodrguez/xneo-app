@@ -31,7 +31,6 @@ dependencies:
   record: ^5.0.0
   just_audio: ^0.9.36
   audio_waveforms: ^1.0.0
-  emoji_picker_flutter: ^1.6.0
   uuid: ^4.2.0
   path: ^1.8.0
   sqflite: ^2.3.0
