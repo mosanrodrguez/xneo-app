@@ -1,0 +1,15 @@
+.dart_tool/
+build/
+*.apk
+*.aab
+*.jks
+*.keystore
+android/app/google-services.json
+android/key.properties
+android/local.properties
+.idea/
+.vscode/
+*.log
+*.pyc
+.DS_Store
+pubspec.lock
