@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "845620718265",
+    "project_id": "xneo-10b04",
+    "storage_bucket": "xneo-10b04.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:845620718265:android:aea39fdd9fd54afe668968",
+        "android_client_info": {
+          "package_name": "com.xneo.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCq7TPBJbmLrNiNZ-1RCLJzkf1VYzFJNaU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
