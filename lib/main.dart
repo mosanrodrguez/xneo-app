@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'screens/splash_screen.dart';
 import 'providers/auth_provider.dart';
@@ -11,14 +12,16 @@ import 'providers/call_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Configurar timeago
+
+  // Pedir permisos uno por uno SIN crashear
+  try { await Permission.storage.request(); } catch (e) {}
+  try { await Permission.photos.request(); } catch (e) {}
+
   timeago.setLocaleMessages('es', timeago.EsMessages());
-  
-  // Iniciar sin Firebase por ahora (evita crash)
+
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token');
-  
+
   runApp(MyApp(initialToken: token));
 }
 
