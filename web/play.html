@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Reproducir - XNEO</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #0D0D0D; color: white; min-height: 100vh; }
+        header {
+            display: flex; align-items: center; padding: 12px 16px;
+            background: #0D0D0D; position: sticky; top: 0; z-index: 10; gap: 12px;
+        }
+        .btn-back { background: transparent; color: white; border: none; font-size: 20px; cursor: pointer; padding: 4px 8px; }
+        .player-container { background: #000; position: relative; }
+        video { width: 100%; display: block; max-height: 60vh; background: #000; }
+        .info-section { padding: 16px; }
+        .video-title { font-size: 18px; font-weight: bold; margin-bottom: 8px; }
+        .stats-row { display: flex; gap: 16px; color: #888; font-size: 13px; margin-bottom: 12px; align-items: center; }
+        .description { color: #aaa; font-size: 13px; line-height: 1.5; margin-bottom: 16px; }
+        .uploader-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; background: #E53935; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; }
+        .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .uploader-name { font-weight: 600; font-size: 14px; }
+        .actions {
+            display: flex; justify-content: space-around; padding: 16px 0;
+            border-top: 1px solid #2A2A2A; margin-top: 12px;
+        }
+        .action-btn { background: transparent; color: white; border: none; font-size: 14px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .action-btn .icon { font-size: 24px; }
+        .related-title { padding: 16px 16px 8px; font-size: 16px; font-weight: bold; }
+        .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 8px 24px; }
+        .related-card { background: #1A1A2E; border-radius: 10px; cursor: pointer; overflow: hidden; }
+        .related-thumb { aspect-ratio: 16/9; background: #2A2A2E; position: relative; }
+        .related-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .related-duration { position: absolute; bottom: 4px; right: 4px; background: rgba(0,0,0,0.8); font-size: 10px; padding: 2px 6px; border-radius: 4px; }
+        .related-info { padding: 8px; }
+        .related-title-text { font-size: 11px; font-weight: 600; margin-bottom: 2px; }
+        .related-views { font-size: 10px; color: #777; }
+    </style>
+</head>
+<body>
+    <header>
+        <button class="btn-back" onclick="window.location.href='web.html'">←</button>
+        <span style="font-size:22px;font-weight:bold"><span style="color:#E53935">X</span>NEO</span>
+    </header>
+    
+    <div class="player-container">
+        <video id="video-player" controls playsinline></video>
+    </div>
+    
+    <div class="info-section">
+        <div class="video-title" id="play-title">Cargando...</div>
+        <div class="stats-row">
+            <span id="play-views">👁 0</span>
+            <span>·</span>
+            <span id="play-time"></span>
+        </div>
+        <div class="description" id="play-desc"></div>
+        <div class="uploader-row">
+            <div class="avatar" id="play-avatar">U</div>
+            <span class="uploader-name" id="play-uploader">Usuario</span>
+        </div>
+        <div class="actions">
+            <button class="action-btn" onclick="likeVideo()">
+                <span class="icon">👍</span>
+                <span id="play-likes">0</span>
+            </button>
+            <button class="action-btn" onclick="dislikeVideo()">
+                <span class="icon">👎</span>
+                <span id="play-dislikes">0</span>
+            </button>
+            <button class="action-btn" onclick="shareVideo()">
+                <span class="icon">🔗</span>
+                <span>Compartir</span>
+            </button>
+            <button class="action-btn" onclick="downloadVideo()">
+                <span class="icon">💾</span>
+                <span>Guardar</span>
+            </button>
+        </div>
+    </div>
+    
+    <div class="related-title">Videos recomendados</div>
+    <div class="related-grid" id="related-grid"></div>
+    
+    <script>
+        const API = 'https://xneo-web.onrender.com';
+        const token = localStorage.getItem('token');
+        let currentVideo = JSON.parse(localStorage.getItem('currentVideo') || '{}');
+        let allVideos = [];
+        
+        if (!token) window.location.href = 'auth.html';
+        
+        function formatNumber(n) {
+            if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+            if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+            return n.toString();
+        }
+        function formatTimeAgo(dateStr) {
+            if (!dateStr) return '';
+            const diff = (new Date() - new Date(dateStr)) / 1000;
+            if (diff < 60) return 'Hace instantes';
+            if (diff < 3600) return 'Hace ' + Math.floor(diff/60) + ' minutos';
+            if (diff < 7200) return 'Hace 1 hora';
+            if (diff < 86400) return 'Hace ' + Math.floor(diff/3600) + ' horas';
+            return 'Hace ' + Math.floor(diff/86400) + ' días';
+        }
+        function formatDuration(s) {
+            const min = Math.floor(s / 60);
+            const sec = s % 60;
+            return min + ':' + sec.toString().padStart(2, '0');
+        }
+        
+        function loadVideo() {
+            if (!currentVideo || !currentVideo.id) {
+                document.getElementById('play-title').textContent = 'Video no encontrado';
+                return;
+            }
+            
+            document.getElementById('play-title').textContent = currentVideo.title || 'Sin título';
+            document.getElementById('play-views').textContent = '👁 ' + formatNumber(currentVideo.views || 0) + ' vistas';
+            document.getElementById('play-time').textContent = formatTimeAgo(currentVideo.uploadDate);
+            document.getElementById('play-desc').textContent = currentVideo.description || '';
+            document.getElementById('play-uploader').textContent = currentVideo.uploaderName || 'Usuario';
+            document.getElementById('play-likes').textContent = formatNumber(currentVideo.likes || 0);
+            document.getElementById('play-dislikes').textContent = formatNumber(currentVideo.dislikes || 0);
+            
+            const avatar = document.getElementById('play-avatar');
+            if (currentVideo.uploaderAvatar) {
+                avatar.innerHTML = `<img src="${currentVideo.uploaderAvatar}">`;
+            } else {
+                avatar.textContent = (currentVideo.uploaderName || 'U')[0].toUpperCase();
+            }
+            
+            const player = document.getElementById('video-player');
+            if (currentVideo.videoUrl) {
+                player.src = currentVideo.videoUrl;
+                player.load();
+            }
+            
+            // Registrar vista
+            fetch(API + '/api/videos/' + currentVideo.id + '/view', { method: 'POST' });
+        }
+        
+        async function loadRelated() {
+            try {
+                const res = await fetch(API + '/api/videos', {
+                    headers: {'Authorization': 'Bearer ' + token}
+                });
+                if (res.ok) {
+                    allVideos = await res.json();
+                    const related = allVideos.filter(v => v.id !== currentVideo.id).slice(0, 6);
+                    document.getElementById('related-grid').innerHTML = related.map(v => `
+                        <div class="related-card" onclick="selectRelated('${v.id}')">
+                            <div class="related-thumb">
+                                ${v.thumbnail ? `<img src="${v.thumbnail}">` : '▶️'}
+                                <span class="related-duration">${formatDuration(v.duration || 0)}</span>
+                            </div>
+                            <div class="related-info">
+                                <div class="related-title-text">${v.title || ''}</div>
+                                <div class="related-views">👁 ${formatNumber(v.views || 0)}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {}
+        }
+        
+        function selectRelated(id) {
+            const v = allVideos.find(v => v.id === id);
+            if (v) {
+                currentVideo = v;
+                localStorage.setItem('currentVideo', JSON.stringify(v));
+                loadVideo();
+                loadRelated();
+                window.scrollTo(0, 0);
+            }
+        }
+        
+        async function likeVideo() {
+            await fetch(API + '/api/videos/' + currentVideo.id + '/like', {
+                method: 'POST', headers: {'Authorization': 'Bearer ' + token}
+            });
+        }
+        async function dislikeVideo() {
+            await fetch(API + '/api/videos/' + currentVideo.id + '/dislike', {
+                method: 'POST', headers: {'Authorization': 'Bearer ' + token}
+            });
+        }
+        function shareVideo() {
+            const url = window.location.origin + '/play.html?id=' + currentVideo.id;
+            if (navigator.share) navigator.share({title: currentVideo.title, url});
+            else prompt('Comparte este enlace:', url);
+        }
+        function downloadVideo() {
+            if (currentVideo.videoUrl) {
+                const a = document.createElement('a');
+                a.href = currentVideo.videoUrl;
+                a.download = currentVideo.title + '.mp4';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+        }
+        
+        loadVideo();
+        loadRelated();
+    </script>
+</body>
+</html>

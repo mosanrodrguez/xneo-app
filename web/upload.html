@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Subir Video - XNEO</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #0D0D0D; color: white; min-height: 100vh; padding: 16px; }
+        h2 { text-align: center; margin-bottom: 20px; }
+        .card { background: #1A1A2E; border-radius: 16px; padding: 24px; max-width: 480px; margin: 0 auto; }
+        .input-group { margin-bottom: 14px; }
+        label { display: block; font-size: 13px; color: #aaa; margin-bottom: 6px; }
+        input, textarea, select {
+            width: 100%; background: #2A2A3E; border: 2px solid #333; color: white;
+            padding: 12px 14px; border-radius: 10px; font-size: 14px; outline: none;
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        input:focus, textarea:focus, select:focus { border-color: #E53935; }
+        .btn-primary {
+            background: #E53935; color: white; border: none; padding: 14px 32px;
+            border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 8px;
+        }
+        .btn-back {
+            background: transparent; border: 2px solid #333; color: white;
+            padding: 12px 24px; border-radius: 10px; font-size: 14px; cursor: pointer; width: 100%; margin-top: 8px;
+        }
+        .error { color: #E53935; font-size: 13px; margin: 8px 0; text-align: center; }
+        .success { color: #4CAF50; font-size: 13px; margin: 8px 0; text-align: center; }
+        .file-preview {
+            background: #2A2A2E; border-radius: 10px; padding: 20px; text-align: center;
+            margin-bottom: 14px; min-height: 60px; display: flex; align-items: center; justify-content: center;
+            color: #888; cursor: pointer; border: 2px dashed #333;
+        }
+        .file-preview.selected { border-color: #E53935; color: #E53935; }
+        progress { width: 100%; height: 6px; border-radius: 3px; margin-top: 8px; }
+        progress::-webkit-progress-bar { background: #2A2A2E; border-radius: 3px; }
+        progress::-webkit-progress-value { background: #E53935; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h2>📹 Subir Video</h2>
+    <div class="card">
+        <div class="file-preview" id="file-preview" onclick="document.getElementById('video-file').click()">
+            🎬 Seleccionar archivo de video
+        </div>
+        <input type="file" id="video-file" accept="video/*" style="display:none" onchange="previewFile()">
+        
+        <div class="input-group">
+            <label>Título *</label>
+            <input type="text" id="upload-title" placeholder="Nombre del video">
+        </div>
+        <div class="input-group">
+            <label>Descripción (opcional)</label>
+            <textarea id="upload-desc" placeholder="Describe tu video..."></textarea>
+        </div>
+        <div class="input-group">
+            <label>Categoría</label>
+            <select id="upload-category">
+                <option>Hetero</option>
+                <option>Bi</option>
+                <option>Gay</option>
+                <option>Trans</option>
+            </select>
+        </div>
+        <progress id="progress-bar" value="0" max="100" style="display:none"></progress>
+        <div class="error" id="upload-error"></div>
+        <div class="success" id="upload-success"></div>
+        <button class="btn-primary" onclick="uploadVideo()">Subir Video</button>
+        <button class="btn-back" onclick="window.location.href='web.html'">← Volver al inicio</button>
+    </div>
+    
+    <script>
+        const API = 'https://xneo-web.onrender.com';
+        const token = localStorage.getItem('token');
+        
+        if (!token) window.location.href = 'auth.html';
+        
+        function previewFile() {
+            const file = document.getElementById('video-file').files[0];
+            const preview = document.getElementById('file-preview');
+            if (file) {
+                preview.textContent = '✅ ' + file.name;
+                preview.classList.add('selected');
+            }
+        }
+        
+        async function uploadVideo() {
+            const file = document.getElementById('video-file').files[0];
+            const title = document.getElementById('upload-title').value.trim();
+            const desc = document.getElementById('upload-desc').value.trim();
+            const category = document.getElementById('upload-category').value;
+            const errorEl = document.getElementById('upload-error');
+            const successEl = document.getElementById('upload-success');
+            const progress = document.getElementById('progress-bar');
+            
+            errorEl.textContent = '';
+            successEl.textContent = '';
+            
+            if (!file) { errorEl.textContent = 'Selecciona un archivo de video'; return; }
+            if (!title) { errorEl.textContent = 'Ingresa un título'; return; }
+            
+            const formData = new FormData();
+            formData.append('video', file);
+            formData.append('title', title);
+            formData.append('description', desc);
+            formData.append('category', category);
+            
+            progress.style.display = 'block';
+            progress.value = 0;
+            
+            try {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', API + '/api/upload/video');
+                xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                
+                xhr.upload.onprogress = function(e) {
+                    if (e.lengthComputable) {
+                        progress.value = (e.loaded / e.total) * 100;
+                    }
+                };
+                
+                xhr.onload = function() {
+                    progress.style.display = 'none';
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        successEl.textContent = '✅ Video subido correctamente!';
+                        setTimeout(() => window.location.href = 'web.html', 2000);
+                    } else {
+                        const data = JSON.parse(xhr.responseText);
+                        errorEl.textContent = data.message || 'Error al subir video';
+                    }
+                };
+                
+                xhr.onerror = function() {
+                    progress.style.display = 'none';
+                    errorEl.textContent = 'Error de conexión';
+                };
+                
+                xhr.send(formData);
+            } catch(e) {
+                progress.style.display = 'none';
+                errorEl.textContent = 'Error de conexión';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>XNEO - Iniciar Sesión</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #0D0D0D;
+            color: white;
+            min-height: 100vh;
+        }
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .logo { font-size: 56px; font-weight: bold; margin-bottom: 4px; }
+        .logo .x { color: #E53935; }
+        .logo .neo { color: white; }
+        .subtitle { color: #888; font-size: 14px; letter-spacing: 2px; margin-bottom: 40px; }
+        .card {
+            background: #1A1A2E;
+            border-radius: 16px;
+            padding: 28px 24px;
+            width: 100%;
+            max-width: 360px;
+        }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; font-size: 13px; color: #aaa; margin-bottom: 6px; }
+        input {
+            width: 100%;
+            background: #2A2A3E;
+            border: 2px solid #333;
+            color: white;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+            transition: border 0.2s;
+        }
+        input:focus { border-color: #E53935; }
+        .btn-primary {
+            background: #E53935;
+            color: white;
+            border: none;
+            padding: 15px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+            transition: transform 0.2s;
+        }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #E53935;
+            color: #E53935;
+            padding: 13px 24px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+        }
+        .error { color: #E53935; font-size: 13px; margin: 12px 0; min-height: 20px; text-align: center; }
+        .success { color: #4CAF50; font-size: 13px; margin: 12px 0; min-height: 20px; text-align: center; }
+        .link { color: #888; margin-top: 16px; text-align: center; font-size: 14px; }
+        .link a { color: #E53935; text-decoration: none; font-weight: bold; cursor: pointer; }
+        .tabs { display: flex; margin-bottom: 20px; }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            cursor: pointer;
+            border-bottom: 2px solid #333;
+            color: #888;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .tab.active { border-bottom: 2px solid #E53935; color: #E53935; }
+        .form-section { display: none; }
+        .form-section.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo"><span class="x">X</span><span class="neo">NEO</span></div>
+        <p class="subtitle">CONTENIDO EXCLUSIVO</p>
+        
+        <div class="card">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('login')">Iniciar Sesión</div>
+                <div class="tab" onclick="switchTab('register')">Crear Cuenta</div>
+            </div>
+            
+            <div id="login-form" class="form-section active">
+                <form onsubmit="login(event)">
+                    <div class="input-group">
+                        <label>Usuario</label>
+                        <input type="text" id="login-username" placeholder="Tu usuario" required autocomplete="username">
+                    </div>
+                    <div class="input-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="login-password" placeholder="Tu contraseña" required autocomplete="current-password">
+                    </div>
+                    <div class="error" id="login-error"></div>
+                    <button type="submit" class="btn-primary">Iniciar Sesión</button>
+                </form>
+            </div>
+            
+            <div id="register-form" class="form-section">
+                <form onsubmit="register(event)">
+                    <div class="input-group">
+                        <label>Usuario</label>
+                        <input type="text" id="reg-username" placeholder="Elige un usuario" required minlength="4" autocomplete="username">
+                    </div>
+                    <div class="input-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" required minlength="6" autocomplete="new-password">
+                    </div>
+                    <div class="input-group">
+                        <label>Confirmar Contraseña</label>
+                        <input type="password" id="reg-confirm" placeholder="Repite la contraseña" required autocomplete="new-password">
+                    </div>
+                    <div class="success" id="reg-success"></div>
+                    <div class="error" id="reg-error"></div>
+                    <button type="submit" class="btn-primary">Crear Cuenta</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API = 'https://xneo-web.onrender.com';
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tab + '-form').classList.add('active');
+            document.getElementById('login-error').textContent = '';
+            document.getElementById('reg-error').textContent = '';
+            document.getElementById('reg-success').textContent = '';
+        }
+        
+        async function login(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            const errorEl = document.getElementById('login-error');
+            
+            try {
+                const res = await fetch(API + '/api/auth/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username, password})
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    window.location.href = 'web.html';
+                } else {
+                    errorEl.textContent = data.message || 'Credenciales incorrectas';
+                }
+            } catch(e) {
+                errorEl.textContent = 'Error de conexión';
+            }
+        }
+        
+        async function register(e) {
+            e.preventDefault();
+            const username = document.getElementById('reg-username').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
+            const errorEl = document.getElementById('reg-error');
+            const successEl = document.getElementById('reg-success');
+            
+            errorEl.textContent = '';
+            successEl.textContent = '';
+            
+            if (password !== confirm) {
+                errorEl.textContent = 'Las contraseñas no coinciden';
+                return;
+            }
+            
+            try {
+                const res = await fetch(API + '/api/auth/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username, password})
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    successEl.textContent = '✅ Cuenta creada exitosamente';
+                    setTimeout(() => {
+                        localStorage.setItem('token', data.token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        window.location.href = 'web.html';
+                    }, 1500);
+                } else {
+                    errorEl.textContent = data.message || 'Error al crear cuenta';
+                }
+            } catch(e) {
+                errorEl.textContent = 'Error de conexión';
+            }
+        }
+        
+        // Redirigir si ya hay sesión
+        if (localStorage.getItem('token')) {
+            window.location.href = 'web.html';
+        }
+    </script>
+</body>
+</html>
