@@ -5,4 +5,5 @@
     <color name="surface">#1A1A2E</color>
     <color name="input_bg">#2A2A3E</color>
     <color name="gray">#888888</color>
+    <color name="ic_launcher_background">#E53935</color>
 </resources>
