@@ -3,97 +3,146 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#000">
-    
+    android:background="#000000">
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
-        
+
         <androidx.media3.ui.PlayerView
             android:id="@+id/player_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-        
+            android:layout_height="match_parent"
+            android:background="#000000"/>
+
         <ImageView
             android:id="@+id/btn_back"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@android:drawable/ic_menu_revert"
+            android:src="@drawable/ic_back"
             android:padding="12dp"
-            android:layout_margin="8dp"
-            android:background="#CC000000"
-            android:clickable="true"/>
+            android:layout_margin="12dp"
+            android:background="@drawable/circle_bg"
+            android:clickable="true"
+            android:focusable="true"/>
     </FrameLayout>
-    
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#1A1A2E">
-        
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
-            
+
             <TextView
                 android:id="@+id/tv_player_title"
-                android:textColor="#FFF"
+                android:textColor="#FFFFFF"
                 android:textSize="18sp"
                 android:textStyle="bold"/>
-            
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp">
-                
-                <TextView
-                    android:id="@+id/tv_player_views"
-                    android:textColor="#888"
-                    android:textSize="12sp"/>
-            </LinearLayout>
-            
+
+            <TextView
+                android:id="@+id/tv_player_views"
+                android:textColor="#888888"
+                android:textSize="13sp"
+                android:layout_marginTop="8dp"/>
+
             <TextView
                 android:id="@+id/tv_player_desc"
-                android:textColor="#AAA"
-                android:textSize="13sp"
-                android:layout_marginTop="12dp"/>
-            
-            <TextView
-                android:id="@+id/tv_player_uploader"
-                android:textColor="#E53935"
+                android:textColor="#AAAAAA"
                 android:textSize="14sp"
-                android:layout_marginTop="8dp"/>
-            
+                android:lineSpacingMultiplier="1.4"
+                android:layout_marginTop="12dp"
+                android:visibility="gone"/>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="12dp"
-                android:gravity="center">
-                
+                android:gravity="center_vertical"
+                android:layout_marginTop="12dp">
+
+                <TextView
+                    android:id="@+id/tv_player_avatar"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:text="U"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:background="@drawable/avatar_circle_bg"
+                    android:layout_marginEnd="10dp"/>
+
+                <TextView
+                    android:id="@+id/tv_player_uploader"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp"
+                android:paddingTop="16dp"
+                android:background="@drawable/divider_top">
+
                 <TextView
                     android:id="@+id/btn_like"
-                    android:drawableStart="@android:drawable/btn_plus"
-                    android:text="👍 "
-                    android:textColor="#FFF"
-                    android:padding="12dp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:text="👍 0"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
                     android:gravity="center"
+                    android:padding="12dp"
+                    android:clickable="true"
+                    android:focusable="true"/>
+
+                <TextView
+                    android:id="@+id/btn_dislike"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="👎 0"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:padding="12dp"
                     android:clickable="true"/>
-                
+
                 <TextView
                     android:id="@+id/btn_share"
-                    android:text="🔗 Compartir"
-                    android:textColor="#FFF"
-                    android:padding="12dp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:text="🔗 Compartir"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
                     android:gravity="center"
+                    android:padding="12dp"
+                    android:clickable="true"/>
+
+                <TextView
+                    android:id="@+id/btn_download"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="💾 Guardar"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:padding="12dp"
                     android:clickable="true"/>
             </LinearLayout>
-            
+
             <TextView
                 android:id="@+id/tv_likes"
                 android:visibility="gone"/>
