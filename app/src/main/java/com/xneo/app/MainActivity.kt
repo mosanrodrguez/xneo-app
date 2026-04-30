@@ -5,12 +5,13 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.xneo.app.R
+import com.xneo.app.network.SessionManager
 import com.xneo.app.ui.home.HomeFragment
 import com.xneo.app.ui.upload.UploadFragment
 import com.xneo.app.ui.downloads.DownloadsFragment
 import com.xneo.app.ui.profile.ProfileFragment
 import com.xneo.app.ui.login.LoginActivity
-import com.xneo.app.network.SessionManager
 
 class MainActivity : AppCompatActivity() {
     
@@ -29,13 +30,11 @@ class MainActivity : AppCompatActivity() {
         
         setContentView(R.layout.activity_main)
         
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
-        
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, HomeFragment())
             .commit()
         
-        bottomNav.setOnItemSelectedListener { item ->
+        findViewById<BottomNavigationView>(R.id.bottom_nav).setOnItemSelectedListener { item ->
             val fragment: Fragment = when (item.itemId) {
                 R.id.nav_home -> HomeFragment()
                 R.id.nav_upload -> UploadFragment()
