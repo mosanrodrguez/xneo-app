@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#000">
+    
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/player_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@android:drawable/ic_menu_revert"
+            android:padding="12dp"
+            android:layout_margin="8dp"
+            android:background="#CC000000"
+            android:clickable="true"/>
+    </FrameLayout>
+    
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1A1A2E">
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+            
+            <TextView
+                android:id="@+id/tv_player_title"
+                android:textColor="#FFF"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+                
+                <TextView
+                    android:id="@+id/tv_player_views"
+                    android:textColor="#888"
+                    android:textSize="12sp"/>
+            </LinearLayout>
+            
+            <TextView
+                android:id="@+id/tv_player_desc"
+                android:textColor="#AAA"
+                android:textSize="13sp"
+                android:layout_marginTop="12dp"/>
+            
+            <TextView
+                android:id="@+id/tv_player_uploader"
+                android:textColor="#E53935"
+                android:textSize="14sp"
+                android:layout_marginTop="8dp"/>
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:gravity="center">
+                
+                <TextView
+                    android:id="@+id/btn_like"
+                    android:drawableStart="@android:drawable/btn_plus"
+                    android:text="👍 "
+                    android:textColor="#FFF"
+                    android:padding="12dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:clickable="true"/>
+                
+                <TextView
+                    android:id="@+id/btn_share"
+                    android:text="🔗 Compartir"
+                    android:textColor="#FFF"
+                    android:padding="12dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:clickable="true"/>
+            </LinearLayout>
+            
+            <TextView
+                android:id="@+id/tv_likes"
+                android:visibility="gone"/>
+            <TextView
+                android:id="@+id/tv_dislikes"
+                android:visibility="gone"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

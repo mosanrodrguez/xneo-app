@@ -1,0 +1,39 @@
+name: Build Kotlin APK
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'android-native/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Java 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+    
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+    
+    - name: Grant execute permission for gradlew
+      run: chmod +x android-native/gradlew 2>/dev/null || true
+    
+    - name: Build APK
+      run: |
+        cd android-native
+        ./gradlew assembleRelease --no-daemon
+    
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: xneo-kotlin
+        path: android-native/app/build/outputs/apk/release/*.apk
+        retention-days: 30
