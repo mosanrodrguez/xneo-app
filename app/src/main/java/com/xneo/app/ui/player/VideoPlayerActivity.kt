@@ -24,7 +24,6 @@ class VideoPlayerActivity : AppCompatActivity() {
         
         val videoUrl = intent.getStringExtra("video_url") ?: ""
         val title = intent.getStringExtra("video_title") ?: ""
-        val thumbnail = intent.getStringExtra("video_thumbnail") ?: ""
         val views = intent.getIntExtra("video_views", 0)
         val likes = intent.getIntExtra("video_likes", 0)
         val dislikes = intent.getIntExtra("video_dislikes", 0)
@@ -36,17 +35,19 @@ class VideoPlayerActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tv_player_title).text = title
         findViewById<TextView>(R.id.tv_player_views).text = "$views vistas"
         findViewById<TextView>(R.id.tv_player_uploader).text = uploader
-        findViewById<TextView>(R.id.tv_player_desc).text = description
         findViewById<TextView>(R.id.tv_likes).text = likes.toString()
         findViewById<TextView>(R.id.tv_dislikes).text = dislikes.toString()
         
-        // Registrar vista
+        if (description.isNotEmpty()) {
+            findViewById<TextView>(R.id.tv_player_desc).visibility = android.view.View.VISIBLE
+            findViewById<TextView>(R.id.tv_player_desc).text = description
+        }
+        
         val sessionManager = SessionManager(this)
         CoroutineScope(Dispatchers.IO).launch {
             RetrofitClient.api.viewVideo(videoId)
         }
         
-        // Player
         val playerView = findViewById<PlayerView>(R.id.player_view)
         player = ExoPlayer.Builder(this).build()
         playerView.player = player
@@ -55,16 +56,16 @@ class VideoPlayerActivity : AppCompatActivity() {
         player?.playWhenReady = true
         
         findViewById<ImageView>(R.id.btn_back).setOnClickListener { finish() }
-        findViewById<TextView>(R.id.btn_like).setOnClickListener {
+        findViewById<android.view.View>(R.id.btn_like).setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 RetrofitClient.api.likeVideo(sessionManager.token ?: "", videoId)
             }
-            Toast.makeText(this, "👍 Like", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Like", Toast.LENGTH_SHORT).show()
         }
-        findViewById<TextView>(R.id.btn_share).setOnClickListener {
+        findViewById<android.view.View>(R.id.btn_share).setOnClickListener {
             val intent = android.content.Intent(android.content.Intent.ACTION_SEND)
             intent.type = "text/plain"
-            intent.putExtra(android.content.Intent.EXTRA_TEXT, "Mira este video: $videoUrl")
+            intent.putExtra(android.content.Intent.EXTRA_TEXT, "Mira este video en XNEO: $videoUrl")
             startActivity(android.content.Intent.createChooser(intent, "Compartir"))
         }
     }
