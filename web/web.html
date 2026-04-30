@@ -233,7 +233,7 @@
 <body>
     <header>
         <div class="logo"><span class="x">X</span><span class="neo">NEO</span></div>
-        <a href="upload.html" class="btn-upload">+ Subir</a>
+        <a href="upload.html" class="btn-upload"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:middle;margin-right:4px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Subir</a>
     </header>
     
     <!-- INICIO -->
@@ -258,10 +258,10 @@
     <!-- BARRA DE NAVEGACIÓN -->
     <nav class="bottom-nav">
         <button class="active" onclick="switchPage('home')">
-            <span class="icon">🏠</span>Inicio
+            <span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>Inicio
         </button>
         <button onclick="switchPage('profile')">
-            <span class="icon">👤</span>Mi Perfil
+            <span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Mi Perfil
         </button>
     </nav>
     
@@ -322,12 +322,12 @@
                 if (res.ok) {
                     videos = await res.json();
                     if (videos.length === 0) {
-                        grid.innerHTML = '<div class="empty">📹 No hay videos aún</div>';
+                        grid.innerHTML = '<div class="empty"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23E53935" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:8px"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg> No hay videos aún</div>';
                     } else {
                         grid.innerHTML = videos.map(v => `
                             <div class="video-card" onclick="openVideo('${v.id}')">
                                 <div class="thumbnail">
-                                    ${v.thumbnail ? `<img src="${v.thumbnail}" alt="${v.title}">` : '<div class="no-thumb">▶️</div>'}
+                                    ${v.thumbnail ? `<img src="${v.thumbnail}" alt="${v.title}">` : '<div class="no-thumb"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="%23555" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3" fill="%23555" fill-opacity="0.3" stroke="%23555"/></svg></div>'}
                                     <span class="quality">HD</span>
                                     <span class="duration">${formatDuration(v.duration || 0)}</span>
                                 </div>
@@ -338,8 +338,8 @@
                                         <span>${v.uploaderName || 'Usuario'}</span>
                                     </div>
                                     <div class="stats">
-                                        <span>👁 ${formatNumber(v.views || 0)}</span>
-                                        <span>·</span>
+                                        <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> ${formatNumber(v.views || 0)}</span>
+                                        <span><span style="color:%23555">·</span></span>
                                         <span>${formatTimeAgo(v.uploadDate)}</span>
                                     </div>
                                 </div>
@@ -394,15 +394,15 @@
                         myGrid.innerHTML = myVideos.map(v => `
                             <div class="video-card" onclick="openVideo('${v.id}')">
                                 <div class="thumbnail">
-                                    ${v.thumbnail ? `<img src="${v.thumbnail}">` : '<div class="no-thumb">▶️</div>'}
+                                    ${v.thumbnail ? `<img src="${v.thumbnail}">` : '<div class="no-thumb"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="%23555" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3" fill="%23555" fill-opacity="0.3" stroke="%23555"/></svg></div>'}
                                     <span class="duration">${formatDuration(v.duration || 0)}</span>
                                 </div>
                                 <div class="video-info">
                                     <div class="video-title">${v.title || ''}</div>
                                     <div class="stats">
-                                        <span>👁 ${formatNumber(v.views || 0)}</span>
-                                        <span>·</span>
-                                        <span>👍 ${formatNumber(v.likes || 0)}</span>
+                                        <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> ${formatNumber(v.views || 0)}</span>
+                                        <span><span style="color:%23555">·</span></span>
+                                        <span><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg> ${formatNumber(v.likes || 0)}</span>
                                     </div>
                                 </div>
                             </div>

@@ -1,7 +1,7 @@
 name: xneo_app
-description: XNEO - Plataforma de contenido exclusivo gratuito
+description: XNEO - Videos exclusivos
 publish_to: 'none'
-version: 3.0.0+1
+version: 4.0.0+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -21,15 +21,7 @@ dependencies:
   permission_handler: ^11.0.0
   flutter_cache_manager: ^3.3.0
   timeago: ^3.6.0
-  connectivity_plus: ^5.0.0
   url_launcher: ^6.2.0
-  web_socket_channel: ^2.4.0
-  flutter_webrtc: ^0.9.40
-  firebase_core: ^2.24.0
-  firebase_messaging: ^14.7.0
-  flutter_local_notifications: ^16.3.0
-  record: ^5.0.0
-  just_audio: ^0.9.36
   uuid: ^4.2.0
   path: ^1.8.0
 

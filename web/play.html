@@ -41,7 +41,7 @@
 </head>
 <body>
     <header>
-        <button class="btn-back" onclick="window.location.href='web.html'">←</button>
+        <button class="btn-back" onclick="window.location.href='web.html'"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
         <span style="font-size:22px;font-weight:bold"><span style="color:#E53935">X</span>NEO</span>
     </header>
     
@@ -52,8 +52,8 @@
     <div class="info-section">
         <div class="video-title" id="play-title">Cargando...</div>
         <div class="stats-row">
-            <span id="play-views">👁 0</span>
-            <span>·</span>
+            <span id="play-views"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 0</span>
+            <span><span style="color:%23555">·</span></span>
             <span id="play-time"></span>
         </div>
         <div class="description" id="play-desc"></div>
@@ -63,19 +63,19 @@
         </div>
         <div class="actions">
             <button class="action-btn" onclick="likeVideo()">
-                <span class="icon">👍</span>
+                <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg></span>
                 <span id="play-likes">0</span>
             </button>
             <button class="action-btn" onclick="dislikeVideo()">
-                <span class="icon">👎</span>
+                <span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5.67L6.94.61a5.5 5.5 0 0 0-7.78 7.78L12 21.23V5.67z"/><path d="M12 5.67l5.06-5.06a5.5 5.5 0 0 1 7.78 7.78L12 21.23V5.67z"/></svg></span>
                 <span id="play-dislikes">0</span>
             </button>
             <button class="action-btn" onclick="shareVideo()">
-                <span class="icon">🔗</span>
+                <span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></span>
                 <span>Compartir</span>
             </button>
             <button class="action-btn" onclick="downloadVideo()">
-                <span class="icon">💾</span>
+                <span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
                 <span>Guardar</span>
             </button>
         </div>
@@ -119,7 +119,7 @@
             }
             
             document.getElementById('play-title').textContent = currentVideo.title || 'Sin título';
-            document.getElementById('play-views').textContent = '👁 ' + formatNumber(currentVideo.views || 0) + ' vistas';
+            document.getElementById('play-views').textContent = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> ' + formatNumber(currentVideo.views || 0) + ' vistas';
             document.getElementById('play-time').textContent = formatTimeAgo(currentVideo.uploadDate);
             document.getElementById('play-desc').textContent = currentVideo.description || '';
             document.getElementById('play-uploader').textContent = currentVideo.uploaderName || 'Usuario';
@@ -154,12 +154,12 @@
                     document.getElementById('related-grid').innerHTML = related.map(v => `
                         <div class="related-card" onclick="selectRelated('${v.id}')">
                             <div class="related-thumb">
-                                ${v.thumbnail ? `<img src="${v.thumbnail}">` : '▶️'}
+                                ${v.thumbnail ? `<img src="${v.thumbnail}">` : '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="%23555" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3" fill="%23555" fill-opacity="0.3" stroke="%23555"/></svg>'}
                                 <span class="related-duration">${formatDuration(v.duration || 0)}</span>
                             </div>
                             <div class="related-info">
                                 <div class="related-title-text">${v.title || ''}</div>
-                                <div class="related-views">👁 ${formatNumber(v.views || 0)}</div>
+                                <div class="related-views"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> ${formatNumber(v.views || 0)}</div>
                             </div>
                         </div>
                     `).join('');
