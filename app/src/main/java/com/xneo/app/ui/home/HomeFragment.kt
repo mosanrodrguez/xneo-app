@@ -1,4 +1,4 @@
-package com.xneo.app
+package com.xneo.app.ui.home
 
 import android.os.Bundle
 import android.view.LayoutInflater
