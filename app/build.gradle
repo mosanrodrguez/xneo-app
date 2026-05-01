@@ -46,3 +46,12 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer:2.19.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
 }
+
+android {
+    buildTypes {
+        release {
+            // Usar firma debug para GitHub Actions
+            signingConfig signingConfigs.debug
+        }
+    }
+}
